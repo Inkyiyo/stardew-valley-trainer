@@ -1,0 +1,10 @@
+{
+  "Name": "Stardew Trainer",
+  "Author": "Stardew Trainer",
+  "Version": "1.6.0",
+  "Description": "星露谷修改器 v1.6：F5 呼出分类菜单（角色/NPC/环境/物品/关于），界面文字全在 i18n/*.json 方便翻译。一键采集（砍树/挖石头/敲矿石/清杂草/清大障碍）、获取全部工具、无限浇水、钓鱼瞬咬瞬捕、NPC与宠物好感度拉满、农场动物快乐饱足拉满、改体力/金钱/移速/时间/日期/天气、刷怪生成NPC、把任意 NPC 设为配偶。",
+  "UniqueID": "DeepSeekHarness.StardewTrainer",
+  "EntryDll": "StardewTrainer.dll",
+  "MinimumApiVersion": "4.0.0",
+  "UpdateKeys": []
+}

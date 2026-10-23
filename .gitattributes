@@ -1,0 +1,13 @@
+# 统一换行，避免 Windows/Linux 混合
+* text=auto eol=lf
+
+*.dll binary
+*.png binary
+*.zip binary
+*.nupkg binary
+
+# 中文文档按文本处理
+*.md text eol=lf
+*.json text eol=lf
+*.cs text eol=lf
+*.csproj text eol=lf

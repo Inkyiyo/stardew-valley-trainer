@@ -1,0 +1,97 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+    <LangVersion>10.0</LangVersion>
+    <AssemblyName>StardewTrainer</AssemblyName>
+    <RootNamespace>StardewTrainer</RootNamespace>
+    <Version>1.6.0</Version>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>disable</ImplicitUsings>
+    <EnableDefaultCompileItems>true</EnableDefaultCompileItems>
+
+    <!-- 不要生成 runtimeconfig/deps：这些由 SMAPI 提供 -->
+    <GenerateDependencyFile>false</GenerateDependencyFile>
+    <GenerateRuntimeConfigurationFiles>false</GenerateRuntimeConfigurationFiles>
+    <ProduceReferenceAssembly>false</ProduceReferenceAssembly>
+
+    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+    <NoWarn>$(NoWarn);CS0436;NU1701;CS0169</NoWarn>
+  </PropertyGroup>
+
+  <!--
+    星露谷安装目录。三种指定方式（优先级从高到低）：
+
+      1) 命令行   dotnet build -p:GamePath="D:\steam\steamapps\common\Stardew Valley"
+      2) 环境变量  set STARDEW_GAME_PATH=D:\steam\steamapps\common\Stardew Valley
+      3) 用下面的默认值（Steam 默认安装位置）
+
+    游戏不需要装在这个路径，改了启动选项就能玩，编译时告诉我在哪就行。
+  -->
+  <PropertyGroup>
+    <GamePath Condition="'$(GamePath)' == '' and '$(STARDEW_GAME_PATH)' != ''">$(STARDEW_GAME_PATH)</GamePath>
+    <GamePath Condition="'$(GamePath)' == ''">$(MSBuildProgramFiles32)\Steam\steamapps\common\Stardew Valley</GamePath>
+  </PropertyGroup>
+
+  <!-- 编译前先确认环境，报错要能看懂 -->
+  <Target Name="CheckGamePath" BeforeTargets="BeforeBuild">
+    <Error Condition="!Exists('$(GamePath)\Stardew Valley.dll')"
+           Text="找不到游戏程序集：$(GamePath)\Stardew Valley.dll&#10;请用 -p:GamePath=&quot;你的星露谷目录&quot; 指定安装路径。" />
+    <Error Condition="!Exists('$(GamePath)\StardewModdingAPI.dll')"
+           Text="找不到 StardewModdingAPI.dll（在 $(GamePath) 里）。&#10;请先安装 SMAPI 4.x：https://smapi.io/" />
+  </Target>
+
+  <!--
+    游戏本体的程序集只用于编译期引用，运行时由游戏自己提供，所以 Private=false 不拷贝。
+    SMAPI 安装后会把自身程序集放到游戏根目录，所以这些也从 GamePath 取。
+  -->
+  <ItemGroup>
+    <Reference Include="Stardew Valley">
+      <HintPath>$(GamePath)\Stardew Valley.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="StardewValley.GameData">
+      <HintPath>$(GamePath)\StardewValley.GameData.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="MonoGame.Framework">
+      <HintPath>$(GamePath)\MonoGame.Framework.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="xTile">
+      <HintPath>$(GamePath)\xTile.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="StardewModdingAPI">
+      <HintPath>$(GamePath)\StardewModdingAPI.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="SMAPI.Toolkit.CoreInterfaces">
+      <HintPath>$(GamePath)\smapi-internal\SMAPI.Toolkit.CoreInterfaces.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+  </ItemGroup>
+
+  <!-- i18n 文案必须跟着 dll 一起走，否则界面会退化成显示键名 -->
+  <ItemGroup>
+    <None Update="i18n\*.json" CopyToOutputDirectory="PreserveNewest" />
+    <None Update="manifest.json" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+
+  <!-- 编译完把成品收拢到 dist/StardewTrainer/，这个文件夹可以直接拖进 Mods -->
+  <Target Name="DeployToDist" AfterTargets="Build">
+    <PropertyGroup>
+      <DistDir>$(MSBuildThisFileDirectory)..\..\dist\StardewTrainer</DistDir>
+    </PropertyGroup>
+    <ItemGroup>
+      <I18nFiles Include="$(MSBuildThisFileDirectory)i18n\*.json" />
+    </ItemGroup>
+    <MakeDir Directories="$(DistDir);$(DistDir)\i18n" />
+    <Copy SourceFiles="$(TargetPath)" DestinationFolder="$(DistDir)" />
+    <Copy SourceFiles="$(MSBuildThisFileDirectory)manifest.json" DestinationFolder="$(DistDir)" />
+    <Copy SourceFiles="@(I18nFiles)" DestinationFolder="$(DistDir)\i18n" />
+    <Message Importance="high"
+             Text="已输出到 $(DistDir)（把这个文件夹拖进 Mods 即可）" />
+  </Target>
+
+</Project>

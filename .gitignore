@@ -1,0 +1,34 @@
+# 构建产物
+bin/
+obj/
+dist/
+
+# 编辑器 / IDE
+.vs/
+.vscode/
+.idea/
+*.user
+*.suo
+
+# 游戏与 Mod 运行时文件（不属于源码）
+Mods/
+stage/
+packages/
+tools/
+downloads/
+game-folder-archive/
+.nuget/
+.nuget-http-cache/
+*.nupkg
+
+# 打包与测试时产生的临时文件
+.tmp/
+__pycache__/
+*.pyc
+commands.txt
+commands.txt.done
+
+# 系统垃圾
+Thumbs.db
+desktop.ini
+.DS_Store
